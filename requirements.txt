@@ -1,0 +1,9 @@
+# Chapter 1
+
+fastapi
+uvicorn
+
+# Chapter 2
+
+sqlalchemy
+
