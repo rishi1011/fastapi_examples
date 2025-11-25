@@ -12,3 +12,6 @@ __pycache__/
 
 # Folder information macos
 .DS_Store
+
+#mongodb files
+Chapter 2\nosql_example\data\db
