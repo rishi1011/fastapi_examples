@@ -10,3 +10,8 @@ pymongo
 pydantic[email]
 python-multipart
 httpx
+
+#Chapter 3
+
+fastapi[all]
+pytest
