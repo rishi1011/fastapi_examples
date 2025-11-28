@@ -1,24 +1,42 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 
 from models import (
     Task,
     TaskWithID,
+    TaskV2WithID
 )
 from operations import (
     read_all_tasks,
     read_task,
     create_task,
     modify_task,
-    remove_task
+    remove_task,
+    read_all_tasks_v2
 )
 
 app = FastAPI()
 
 
 @app.get("/tasks", response_model=list[TaskWithID])
-def get_tasks():
+def get_tasks(
+    status: Optional[str] = None,
+    title: Optional[str] = None
+):
     tasks = read_all_tasks()
+    if status:  
+        tasks = [
+            task 
+            for task in tasks
+            if task.status == status
+        ]
+
+    if title:
+        tasks = [
+            task for task in tasks if task.title == title
+        ]
+
     return tasks
 
 
@@ -28,6 +46,17 @@ def get_task(task_id: int):
     if not task:
         raise HTTPException(status_code=404, detail="task not found")
     return task
+
+@app.get("/tasks/search", response_model=list[TaskWithID])
+def search_tasks(keyword: str):
+    tasks = read_all_tasks()
+    filtered_tasks =[
+        task 
+        for task in tasks
+        if keyword.lower()
+        in (task.title + task.description).lower()
+    ]
+    return filtered_tasks
 
 
 @app.post("/task", response_model=TaskWithID)
@@ -63,3 +92,11 @@ def delete_task(task_id: int):
             status_code=404, detail="Task not found"
         )
     return removed_task
+
+@app.get(
+    '/v2/tasks',
+    response_model=list[TaskV2WithID]
+)
+def get_tasks_v2():
+    tasks = read_all_tasks_v2()
+    return tasks
