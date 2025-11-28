@@ -32,7 +32,7 @@ TEST_TASKS = [
 @pytest.fixture(autouse=True)
 def create_test_database():
     database_file_location = str(
-        Path(__file__.parent) / TEST_DATABASE_FILE
+        Path(__file__).parent / TEST_DATABASE_FILE
     )
     with patch(
         "operations.DATABASE_FILENAME",
