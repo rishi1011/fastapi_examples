@@ -51,6 +51,7 @@ def get_user_from_token(
             ),
             headers={"WWW-authenticate": "Bearer"}
         )
+    print(user)
     return user
 
 

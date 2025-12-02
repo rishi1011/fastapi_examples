@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel
 from typing import Optional
 from security import (
@@ -25,7 +26,22 @@ from operations import (
     read_all_tasks_v2
 )
 
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Task Manager API",
+        version="2.0.0",
+        description="This is a task management api.",
+        routes=app.routes,
+    )
+    del openapi_schema["paths"]["/token"]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
 app = FastAPI()
+
+app.openapi = custom_openapi
 
 
 @app.get("/tasks", response_model=list[TaskWithID])
