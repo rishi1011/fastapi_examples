@@ -15,3 +15,7 @@ httpx
 
 fastapi[all]
 pytest
+
+#Chapter 4
+passlib[bcrypt]
+sqlalchemy>=2.0.0

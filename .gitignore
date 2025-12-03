@@ -15,3 +15,4 @@ __pycache__/
 
 #mongodb files
 Chapter 2/nosql_example/data/db/
+Chapter 2/sql_example/mydb.db
