@@ -8,6 +8,8 @@ from db_connection import get_engine, get_session
 from operations import add_user
 from responses import ResponseCreateUser, UserCreateBody, UserCreateResponse
 
+import security
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,6 +18,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Saas application", lifespan=lifespan)
+
+app.include_router(security.router)
 
 
 @app.post(
@@ -30,14 +34,9 @@ def register(
     print(user)
     user = add_user(session=session, **user.model_dump())
     if not user:
-         raise HTTPException(
+        raise HTTPException(
             status.HTTP_409_CONFLICT,
             "username or email already exists",
         )
-    user_response = UserCreateResponse(
-        username=user.username, email=user.email
-    )
-    return {
-        "message": "user created",
-        "user": user_response 
-    }
+    user_response = UserCreateResponse(username=user.username, email=user.email)
+    return {"message": "user created", "user": user_response}
