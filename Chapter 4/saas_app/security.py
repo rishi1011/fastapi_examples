@@ -1,3 +1,5 @@
+from enum import Enum
+
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from sqlalchemy.orm import Session

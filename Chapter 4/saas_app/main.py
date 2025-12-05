@@ -9,7 +9,8 @@ from operations import add_user
 from responses import ResponseCreateUser, UserCreateBody, UserCreateResponse
 
 import security
-
+import premium_access
+import rbac
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,7 +21,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Saas application", lifespan=lifespan)
 
 app.include_router(security.router)
-
+app.include_router(premium_access.router)
+app.include_router(rbac.router)
 
 @app.post(
     "/register/user",
