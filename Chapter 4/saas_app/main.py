@@ -14,6 +14,7 @@ import premium_access
 import rbac
 import github_login
 import mfa
+import api_key
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,6 +29,7 @@ app.include_router(premium_access.router)
 app.include_router(rbac.router)
 app.include_router(github_login.router)
 app.include_router(mfa.router)
+app.include_router(api_key.router)
 
 @app.post(
     "/register/user",
