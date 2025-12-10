@@ -15,6 +15,7 @@ import rbac
 import github_login
 import mfa
 import api_key
+import user_session
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,6 +31,7 @@ app.include_router(rbac.router)
 app.include_router(github_login.router)
 app.include_router(mfa.router)
 app.include_router(api_key.router)
+app.include_router(user_session.router)
 
 @app.post(
     "/register/user",
@@ -59,3 +61,5 @@ def homepage(
     user: UserCreateResponse = Depends(resolve_github_token),
 ):
     return {"message": f"logged in {user.username} !"}
+
+
