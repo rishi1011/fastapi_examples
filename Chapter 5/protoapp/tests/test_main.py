@@ -14,3 +14,8 @@ async def test_read_main():
     assert response.json() == {
         "message": "Hello World",
     }
+
+def test_read_main_client(test_client):
+    response = test_client.get("/home")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello World"}
