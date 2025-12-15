@@ -1,10 +1,58 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.pool import StaticPool
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
-from proto_app.main import app
+from proto_app.main import app, get_db_session
+from proto_app.database import Base
 
 @pytest.fixture(scope="function")
 def test_client():
     client = TestClient(app)
-    yield client
+    app.dependency_overrides[get_db_session] = (
+        lambda: test_db_session
+    )
+    return client
+
+engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+
+Base.metadata.create_all(bind=engine)
+
+TestingSessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine,
+)
+
+@pytest.fixture
+def test_db_session():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+
+Base.metadata.create_all(bind=engine)
+
+TestingSessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine,
+)
+
+@pytest.fixture
+def test_db_session():
+    db = TestingSessionLocal()
+    try: 
+        yield db
+    finally:
+        db.close()
 
