@@ -38,6 +38,7 @@ def add_item(
     db_session.add(db_item)
     db_session.commit()
     db_session.refresh(db_item)
+    # breakpoint()
     return db_item.id
 
 @app.get("/item/{item_id}", response_model=ItemSchema)
