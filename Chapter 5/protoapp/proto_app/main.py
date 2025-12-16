@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends, Request, HTTPException, status
 from pydantic import BaseModel
-from database import Item
-from database import SessionLocal
 from sqlalchemy.orm import Session
+
+from proto_app.database import Item
+from proto_app.database import SessionLocal
+from proto_app.log_config import client_logger
 
 app = FastAPI()
 
@@ -48,10 +50,24 @@ def get_item(
         .filter(Item.id == item_id)
         .first()
     )
-    if item_id is None:
+    if item_db is None:
         raise HTTPException(
             status_code=404, detail="Item not found"
         )
     
     return item_db
+
+#... modeule content
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    client_logger.info(
+        f"method: {request.method}, "
+        f"call: {request.url.path}, "
+        f"ip: {request.client.host} "
+    )
+
+    response = await call_next(request)
+    return response
+
+
 
