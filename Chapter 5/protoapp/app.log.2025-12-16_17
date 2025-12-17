@@ -1,0 +1,12 @@
+time 2025-12-16 17: 09:17S, INFO : method: GET, call: /docs, ip: 127.0.0.1 
+time 2025-12-16 17: 09:17S, INFO : method: GET, call: /openapi.json, ip: 127.0.0.1 
+time 2025-12-16 17: 09:17S, INFO : method: GET, call: /home, ip: 127.0.0.1 
+time 2025-12-16 17: 09:17S, INFO : method: GET, call: /item/1, ip: 127.0.0.1 
+time 2025-12-16 17: 10:17S, INFO : method: POST, call: /item, ip: 127.0.0.1 
+time 2025-12-16 17: 34:17S, INFO : method: GET, call: /, ip: 127.0.0.1 
+time 2025-12-16 17: 34:17S, INFO : method: GET, call: /favicon.ico, ip: 127.0.0.1 
+time 2025-12-16 17: 34:17S, INFO : method: GET, call: /docs, ip: 127.0.0.1 
+time 2025-12-16 17: 34:17S, INFO : method: GET, call: /openapi.json, ip: 127.0.0.1 
+time 2025-12-16 17: 38:17S, INFO : method: POST, call: /item, ip: 127.0.0.1 
+time 2025-12-16 17: 41:17S, INFO : method: GET, call: /docs, ip: 127.0.0.1 
+time 2025-12-16 17: 41:17S, INFO : method: GET, call: /openapi.json, ip: 127.0.0.1 
