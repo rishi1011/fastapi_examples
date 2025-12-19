@@ -15,5 +15,6 @@ class Ticket(Base):
     price: Mapped[float] = mapped_column(nullable=True)
     show: Mapped[str | None]
     user: Mapped[str | None]
+    sold: Mapped[bool] = mapped_column(default=False)
 
         
