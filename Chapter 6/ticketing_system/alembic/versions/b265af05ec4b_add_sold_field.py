@@ -1,4 +1,4 @@
-"""Start database
+"""Add sold field
 
 Revision ID: b265af05ec4b
 Revises: 318bd350e0fb

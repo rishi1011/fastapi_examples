@@ -2,7 +2,7 @@ from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.database import Ticket
+from app.database import Event, Ticket, TicketDetails
 
 async def create_ticket(
         db_session: AsyncSession,
@@ -14,6 +14,7 @@ async def create_ticket(
         show = show_name,
         user = user,
         price = price,
+        details = TicketDetails(),
     )
 
     async with db_session.begin():
@@ -67,3 +68,48 @@ async def delete_ticket(
         if tickets_removed.row_count == 0:
             return False
         return True
+
+async def update_ticket_details(
+        db_session: AsyncSession,
+        ticket_id: int,
+        updating_ticket_details: dict,
+) -> bool:
+    ticket_query = update(TicketDetails).where(
+        TicketDetails.ticket_id == ticket_id
+    )
+
+    if updating_ticket_details != {}:
+        ticket_query = ticket_query.values(
+            **updating_ticket_details,
+        )
+    
+    result = await db_session.execute(
+        ticket_query
+    )
+    await db_session.commit()
+    if result.rowcount == 0:
+        return False
+    
+    return True
+
+async def create_event(
+        db_session: AsyncSession,
+        event_name: str,
+        nb_tickets: int | None = 0
+) -> int:
+    async with db_session.begin():
+        event = Event(name = event_name)
+        db_session.add(event)
+        await db_session.flush()
+        event_id = event.id
+        tickets = [
+            Ticket(
+                show = event_name,
+                details = TicketDetails(seat = f"{n}A"),
+                event_id = event_id,
+            )
+            for n in range(nb_tickets)
+        ]
+        db_session.add_all(tickets)
+        await db_session.commit()
+    return event_id

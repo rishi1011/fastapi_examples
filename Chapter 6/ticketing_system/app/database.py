@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from sqlalchemy import Column, Float, ForeignKey, Table
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
+    relationship,
 )
 
 class Base(DeclarativeBase):
@@ -16,5 +19,32 @@ class Ticket(Base):
     show: Mapped[str | None]
     user: Mapped[str | None]
     sold: Mapped[bool] = mapped_column(default=False)
+    details: Mapped["TicketDetails"] = relationship(
+        back_populates = "ticket"
+    )
+    event_id: Mapped[int | None] = mapped_column(ForeignKey("events.id"))
+    event: Mapped["Event | None"] = relationship(
+        back_populates= "tickets"
+    )
+    
+class TicketDetails(Base):
+    __tablename__ = "ticket_details"
 
-        
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticket_id: Mapped[int] = mapped_column(
+        ForeignKey("tickets.id")
+    )
+    ticket: Mapped["Ticket"] = relationship(
+        back_populates="details"
+    )
+    seat: Mapped[str | None]
+    ticket_type: Mapped[str | None]
+
+class Event(Base):
+    __tablename__ = "events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    tickets: Mapped[list["Ticket"]] = relationship(
+        back_populates="event"
+    )

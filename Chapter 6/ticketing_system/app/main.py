@@ -10,7 +10,7 @@ from app.db_connection import (
     get_db_session,
     get_engine,
 )
-from app.operations import create_ticket, get_ticket, update_ticket_price, delete_ticket
+from app.operations import create_ticket, get_ticket, update_ticket_price, delete_ticket, create_event, update_ticket_details
 
 
 @asynccontextmanager
@@ -77,7 +77,7 @@ async def update_ticket_route(
 ):
     update_dict_args = ticket_update.model_dump(exclude_unset=True)
 
-    updated = await update_ticket(db_session, ticket_id, update_dict_args)
+    updated = await update_ticket_details(db_session, ticket_id, update_dict_args)
 
     if not updated:
         raise HTTPException(status_code=404, detail="Ticket not found.")
@@ -96,19 +96,30 @@ async def update_ticket_price_route(
 
     return {"detail": "Price updated"}
 
+
 @app.delete("/ticket/{ticket_id}")
 async def delete_ticket_route(
-    db_session: Annotated[
-        AsyncSession, Depends(get_db_session)
-    ],
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
     ticket_id: int,
 ):
     ticket = await delete_ticket(db_session, ticket_id)
     if not ticket:
-        raise HTTPException(
-            status_code=404, detail="Ticket not found"
-        )
+        raise HTTPException(status_code=404, detail="Ticket not found")
     return {"detail": "Ticket removed"}
+
 
 class TicketResponse(TicketRequest):
     id: int
+
+
+@app.post("/event", response_model=dict[str, int])
+async def create_event_route(
+    db_session: Annotated[
+        AsyncSession,
+        Depends(get_db_session),
+    ],
+    event_name: str,
+    nb_tickets: int | None = 0,
+):
+    event_id = await create_event(db_session, event_name, nb_tickets)
+    return {"event_id": event_id}
