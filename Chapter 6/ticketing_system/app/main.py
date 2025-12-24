@@ -9,6 +9,7 @@ from app.db_connection import (
     AsyncSessionLocal,
     get_db_session,
     get_engine,
+    enable_wal,
 )
 from app.operations import create_ticket, get_ticket, update_ticket_price, delete_ticket, create_event, update_ticket_details
 
@@ -16,9 +17,12 @@ from app.operations import create_ticket, get_ticket, update_ticket_price, delet
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     engine = get_engine()
+
+    await enable_wal()
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        yield
+    yield
     await engine.dispose()
 
 
@@ -70,18 +74,20 @@ class TicketUpdateRequest(BaseModel):
 
 
 @app.put("/ticket/{ticket_id}")
-async def update_ticket_route(
+async def update_ticket_details_route(
     ticket_id: int,
-    ticket_update: TicketUpdateRequest,
+    ticket_update: TicketDetailsUpdateRequest,
     db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ):
     update_dict_args = ticket_update.model_dump(exclude_unset=True)
 
+    print("BEFORE update_ticket_details")
     updated = await update_ticket_details(db_session, ticket_id, update_dict_args)
+    print("AFTER update_ticket_details")
 
     if not updated:
         raise HTTPException(status_code=404, detail="Ticket not found.")
-    return {"detail": "Price Updated"}
+    return {"detail": "Details updated."}
 
 
 @app.put("/ticket/{ticket_id}/price/{new_price}")

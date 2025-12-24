@@ -1,6 +1,7 @@
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.exc import OperationalError
 
 from app.database import Event, Ticket, TicketDetails
 
@@ -74,23 +75,28 @@ async def update_ticket_details(
         ticket_id: int,
         updating_ticket_details: dict,
 ) -> bool:
-    ticket_query = update(TicketDetails).where(
-        TicketDetails.ticket_id == ticket_id
-    )
-
-    if updating_ticket_details != {}:
-        ticket_query = ticket_query.values(
-            **updating_ticket_details,
+    try:
+        ticket_query = update(TicketDetails).where(
+            TicketDetails.ticket_id == ticket_id
         )
-    
-    result = await db_session.execute(
-        ticket_query
-    )
-    await db_session.commit()
-    if result.rowcount == 0:
-        return False
-    
-    return True
+
+        if updating_ticket_details != {}:
+            ticket_query = ticket_query.values(
+                **updating_ticket_details,
+            )
+        
+        result = await db_session.execute(
+            ticket_query
+        )
+        await db_session.commit()
+        if result.rowcount == 0:
+            return False
+        
+        return True
+
+    except OperationalError as e:
+        await db_session.rollback()
+        raise e
 
 async def create_event(
         db_session: AsyncSession,
@@ -113,3 +119,4 @@ async def create_event(
         db_session.add_all(tickets)
         await db_session.commit()
     return event_id
+

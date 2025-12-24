@@ -10,8 +10,12 @@ SQLALCHEMY_DATABASE_URL = (
 
 def get_engine():
     return create_async_engine(
-            SQLALCHEMY_DATABASE_URL, echo=True
+            SQLALCHEMY_DATABASE_URL, echo=True, connect_args={"timeout": 10}
     )
+
+async def enable_wal():
+    async with get_engine().begin() as conn:
+        await conn.exec_driver_sql("PRAGMA journal_mode=WAL;")
 
 AsyncSessionLocal = sessionmaker(
     autocommit=False,
@@ -22,5 +26,10 @@ AsyncSessionLocal = sessionmaker(
 
 async def get_db_session():
     async with AsyncSessionLocal() as session:
-        yield session
-
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

@@ -27,6 +27,7 @@ class Ticket(Base):
         back_populates= "tickets"
     )
     
+    
 class TicketDetails(Base):
     __tablename__ = "ticket_details"
 
