@@ -1,9 +1,10 @@
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, IntegrityError
+from sqlalchemy.dialects.sqlite import insert
 
-from app.database import Event, Ticket, TicketDetails
+from app.database import Event, Sponsor, Ticket, TicketDetails
 
 async def create_ticket(
         db_session: AsyncSession,
@@ -120,3 +121,27 @@ async def create_event(
         await db_session.commit()
     return event_id
 
+async def create_sponsor(
+        db_session: AsyncSession,
+        sponsor_name: str,
+) -> int:
+    async with db_session.begin():
+        sponsor = Sponsor(name=sponsor_name)
+        db_session.add(sponsor)
+        try: 
+            await db_session.flush()
+        except IntegrityError:
+            return 
+        sponsor_id = sponsor.id
+        await db_session.commit()
+    return sponsor_id
+
+async def add_sponsor_to_event(
+        db_session: AsyncSession,
+        event_id: int,
+        sponsor_id: int,
+        amount: float,
+) -> bool:
+    stmt = (
+        insert()
+    )
