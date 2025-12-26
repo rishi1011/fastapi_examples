@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy.dialects.sqlite import insert
+from sqlalchemy.orm import joinedload
 
 from app.database import Event, Sponsor, Ticket, TicketDetails, Sponsorship
 
@@ -188,3 +189,58 @@ async def sell_ticket_to_user(
         if result.rowcount == 0:
             return False
     return True 
+async def get_events_with_sponsors(
+        db_session: AsyncSession,
+) -> list[Event]:
+    query = (
+        select(Event)
+        .options(
+            joinedload(Event.sponsors)
+        )
+    )
+
+    async with db_session as session:
+        result = await session.execute(query)
+        events = result.scalars.all()
+    
+    return events
+
+async def get_event_sponsorships_with_amount(
+        db_session: AsyncSession, event_id: int
+):
+    query = (
+        select(Sponsor.name, Sponsorship.amount)
+        .join(
+            Sponsorship,
+            Sponsorship.sponsor_id == Sponsor.id
+        )
+        .where(
+            Sponsorship.event_id == event_id
+        )
+        .order_by(Sponsorship.amount.desc())
+    )
+
+    async with db_session as session:
+        result = await session.execute(query)
+        sponsor_contributions = result.fetchall()
+
+    return sponsor_contributions
+
+async def get_event_tickets_with_user_price(
+        db_session: AsyncSession, event_id: int,
+) -> list[Ticket]:
+    query = (
+        select(Ticket)
+        .where(Ticket.event_id == event_id)
+        .options(
+            load_only(
+                Ticket.id, Ticket.user, Ticket.price,
+            )
+        )
+    )
+
+    async with db_session as session:
+        result = await session.execute(query)
+        tickets = result.scalars().all()
+
+    return tickets
