@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy.dialects.sqlite import insert
 
-from app.database import Event, Sponsor, Ticket, TicketDetails
+from app.database import Event, Sponsor, Ticket, TicketDetails, Sponsorship
 
 async def create_ticket(
         db_session: AsyncSession,
@@ -143,5 +143,24 @@ async def add_sponsor_to_event(
         amount: float,
 ) -> bool:
     stmt = (
-        insert()
+        insert(Sponsorship)
+        .values(
+            event_id = event_id,
+            sponsor_id = sponsor_id,
+            amount = amount,
+        )
+        .on_conflict_do_update(
+            index_elements=[Sponsorship.event_id, Sponsorship.sponsor_id],
+            set_= {
+                "amount": Sponsorship.amount + amount
+            }
+        )
     )
+
+    async with db_session.begin():
+        result = await db_session.execute(stmt)
+
+    if result.rowcount == 0:
+        return False
+    
+    return True

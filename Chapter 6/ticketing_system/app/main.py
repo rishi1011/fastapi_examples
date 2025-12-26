@@ -11,7 +11,7 @@ from app.db_connection import (
     get_engine,
     enable_wal,
 )
-from app.operations import create_ticket, get_ticket, update_ticket_price, delete_ticket, create_event, update_ticket_details
+from app.operations import add_sponsor_to_event, create_sponsor, create_ticket, get_ticket, update_ticket_price, delete_ticket, create_event, update_ticket_details
 
 
 @asynccontextmanager
@@ -129,3 +129,60 @@ async def create_event_route(
 ):
     event_id = await create_event(db_session, event_name, nb_tickets)
     return {"event_id": event_id}
+
+@app.post(
+    "/sponsor/{sponsor_name}",
+    response_model=dict[str, int],
+    responses= {
+        200: {
+            "description": "Successful Response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "sponsor_id": 12345,
+                    }
+                }
+            }
+        }
+    }
+)
+async def register_sponsor(
+    db_session: Annotated[
+        AsyncSession, Depends(get_db_session)
+    ],
+    sponsor_name: str,
+):
+    sponsor_id = await create_sponsor(
+        db_session, sponsor_name
+    )
+
+    if not sponsor_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Sponsor not created"
+        )
+    
+    return { "sponsor_id": sponsor_id}
+
+@app.post("/event/{event_id}/sponsor/{sponsor_id}")
+async def register_sponsor_amount_contribution(
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    sponsor_id: int, 
+    event_id: int,
+    amount: float | None = 0,
+):
+    registered = await add_sponsor_to_event(
+        db_session, event_id, sponsor_id, amount
+    )
+    if not registered:
+        raise HTTPException(
+            status_code=400,
+            detail="Contribution not registered"
+        )
+    
+    return {
+        "detail": "Contribution registered"
+    }
+
+
+
