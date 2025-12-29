@@ -1,3 +1,12 @@
+import sys
+from pathlib import Path
+
+import pytest_asyncio
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import (
@@ -24,7 +33,8 @@ def db_engine_test():
     )
     return engine
 
-@pytest.fixture
+
+@pytest_asyncio.fixture
 async def db_session_test(
     db_engine_test,
 ):
@@ -37,12 +47,13 @@ async def db_session_test(
 
         async with TestingAsyncSessionLocal() as session:
             yield session
-        
+
         await conn.run_sync(Base.metadata.drop_all)
 
     await db_engine_test.dispose()
 
-@pytest.fixture
+
+@pytest_asyncio.fixture
 async def second_session_test(
     db_engine_test
 ):
@@ -80,7 +91,8 @@ async def fill_database_with_tickets(db_session_test):
         db_session_test.add_all(tickets)
         await db_session_test.commit()
 
-@pytest.fixture
+
+@pytest_asyncio.fixture
 async def add_special_ticket(db_session_test):
     ticket = Ticket(
         id=1234,
