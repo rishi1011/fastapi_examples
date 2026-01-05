@@ -8,6 +8,7 @@ import logging
 from app.db_connection import (
     ping_mongo_db_server,
 )
+from app import third_party_endpoint
 from app.database import mongo_database
 
 logging.basicConfig(
@@ -26,6 +27,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(third_party_endpoint.router)
 
 ENCODERS_BY_TYPE[ObjectId] = str
 
