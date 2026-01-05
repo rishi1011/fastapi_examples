@@ -3,15 +3,26 @@ from fastapi import Body, FastAPI, Depends, HTTPException
 from bson import ObjectId
 from fastapi.encoders import ENCODERS_BY_TYPE
 from pydantic import BaseModel
+import logging
 
 from app.db_connection import (
     ping_mongo_db_server,
 )
 from app.database import mongo_database
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(name)s: %(message)s "
+)
+logger = logging.getLogger(__name__)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await ping_mongo_db_server(),
+    db = mongo_database()
+    await db.songs.create_index({"album.release_year": -1})
+    await db.songs.create_index({"artist": "text"})
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -171,3 +182,41 @@ async def get_playlist(
         "name": playlist["name"],
         "songs": songs,
     }
+
+@app.get("/songs/year")
+async def get_songs_by_released_year(
+    year: int,
+    db = Depends(mongo_database),
+):
+    query = db.songs.find({"album.release_year": year})
+    explained_query = await query.explain()
+    logger.info(
+        "Index used: %s",
+        explained_query.get("queryPlanner", {})
+        .get("winningPlan", {})
+        .get("inputStage", {})
+        .get("indexName", "No index used"),
+    )
+
+    songs = await query.to_list(None)
+    return songs
+
+@app.get("/songs/artist")
+async def get_songs_by_artist(
+    artist: str,
+    db = Depends(mongo_database),
+):
+    query = db.songs.find(
+        {"$text": {"$search": artist}}
+    )
+
+    explained_query = await query.explain()
+    logger.info(
+        "Index used: %s",
+        explained_query.get("queryPlanner", {})
+        .get("winningPlan", {})
+        .get("indexName", "No index used"),
+    )
+
+    songs = await query.to_list(None)
+    return songs
