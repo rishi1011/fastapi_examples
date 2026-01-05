@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy.dialects.sqlite import insert
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, load_only
+
 
 from app.database import Event, Sponsor, Ticket, TicketDetails, Sponsorship
 
