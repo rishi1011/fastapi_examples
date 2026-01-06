@@ -6,6 +6,7 @@ from pydantic import BaseModel
 import logging
 
 from app.db_connection import (
+    ping_elasticsearch_server,
     ping_mongo_db_server,
 )
 from app import third_party_endpoint
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await ping_mongo_db_server(),
+    await ping_elasticsearch_server()
     db = mongo_database()
     await db.songs.create_index({"album.release_year": -1})
     await db.songs.create_index({"artist": "text"})
@@ -222,3 +224,5 @@ async def get_songs_by_artist(
 
     songs = await query.to_list(None)
     return songs
+
+

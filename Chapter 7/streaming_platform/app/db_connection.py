@@ -1,4 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+from elasticsearch import AsyncElasticsearch, TransportError    
 
 import logging
 
@@ -17,4 +18,18 @@ async def ping_mongo_db_server():
             f"Error connecting to MongoDB: {e}"
         )
         raise e
-        
+
+es_client = AsyncElasticsearch("http://localhost:9200")
+
+
+async def ping_elasticsearch_server():
+    try:
+        await es_client.info()
+        logger.info(
+            "Elasticsearch connection successful"
+        )
+    except TransportError as e:
+        logger.error(
+            f"Elasticsearch connection failed: {e}"
+        )
+        raise e
