@@ -8,6 +8,7 @@ import logging
 from app.db_connection import (
     ping_elasticsearch_server,
     ping_mongo_db_server,
+    ping_redis_server,
 )
 from app import third_party_endpoint, main_search
 from app.database import mongo_database
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     await ping_mongo_db_server(),
     await ping_elasticsearch_server()
+    await ping_redis_server()
     db = mongo_database()
     await db.songs.create_index({"album.release_year": -1})
     await db.songs.create_index({"artist": "text"})

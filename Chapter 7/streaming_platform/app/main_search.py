@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from elasticsearch import BadRequestError
 from fastapi_cache.decorator import cache
 
-from app.db_connection import es_client
+from app.db_connection import es_client, redis_client
 from app.es_queries import (
     top_ten_artists_query,
 )
@@ -17,11 +17,25 @@ router = APIRouter(prefix="/search", tags=["search"])
 def get_elasticsearch_client():
     return es_client
 
+def get_redis_client():
+    return redis_client
+
 @router.get("/top/ten/artists/{country}")
 async def top_ten_artist_by_country(
     country: str,
     es_client = Depends(get_elasticsearch_client),
+    redis_client = Depends(get_redis_client),
 ):
+    
+    cache_key = f"top_ten_artists_{country}"
+
+    cached_data = await redis_client.get(cache_key)
+    if cached_data:
+        logger.info(
+            f"Returning cached data for {country}"
+        )
+        return json.loads(cached_data)
+        
     try: 
         response = await es_client.search(
             **top_ten_artists_query(country)
@@ -34,7 +48,7 @@ async def top_ten_artist_by_country(
             detail="Invalid country"
         )
     
-    return [
+    artists = [
         {
             "artist": record.get("key"),
             "views": record.get("views", {}).get(
@@ -43,3 +57,9 @@ async def top_ten_artist_by_country(
         }
         for record in response["aggregations"]["top_ten_artists"]["buckets"]
     ]
+
+    await redis_client.set(
+        cache_key, json.dumps(artists), ex=3600
+    )
+
+    return artists
