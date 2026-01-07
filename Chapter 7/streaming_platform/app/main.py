@@ -9,7 +9,7 @@ from app.db_connection import (
     ping_elasticsearch_server,
     ping_mongo_db_server,
 )
-from app import third_party_endpoint
+from app import third_party_endpoint, main_search
 from app.database import mongo_database
 
 logging.basicConfig(
@@ -30,6 +30,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(third_party_endpoint.router)
+app.include_router(main_search.router)
 
 ENCODERS_BY_TYPE[ObjectId] = str
 
