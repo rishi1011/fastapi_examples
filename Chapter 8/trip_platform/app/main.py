@@ -3,10 +3,12 @@ from typing import Annotated
 
 from app.dependencies import check_coupon_validity, select_category, time_range
 from app.middleware import ClientInfoMiddleware
+from app import internationalization
 
 app = FastAPI()
 
 app.add_middleware(ClientInfoMiddleware)
+app.include_router(internationalization.router)
 
 @app.get("/v1/trips")
 def get_tours(
