@@ -5,7 +5,7 @@ from fastapi import Depends, Header, APIRouter, Request
 
 SUPPORTED_LOCALES = [
     "en_US",
-    "fr-FR",
+    "fr_FR",
 ]
 
 router = APIRouter(
@@ -13,12 +13,12 @@ router = APIRouter(
 )
 
 home_page_content= {
-    "en-US": "Welcome to Trip Platform",
-    "fr-FR": "Bienvenue sur Trip Platform",
+    "en_US": "Welcome to Trip Platform",
+    "fr_FR": "Bienvenue sur Trip Platform",
 }
 
 def resolve_accept_language(
-        accept_language: str = Header("en-US"),
+        accept_language: str = Header("en_US"),
 ) -> Locale:
     client_locales = []
     for language_q in accept_language.split(","):
@@ -27,28 +27,33 @@ def resolve_accept_language(
         else:
             language, q = (language_q, float("inf"))
         try:
-            Locale.parse(language, sep="-")
+            Locale.parse(language, sep="_")
             client_locales.append(
                 (language, float(q))
             )
         except ValueError:
+            print('error')
             continue
 
-        client_locales.sort(
-            key=lambda x: x[1], reverse=True
-        )
+    client_locales.sort(
+        key=lambda x: x[1], reverse=True
+    )
 
-        locales = [locale for locale, _ in client_locales]
+    locales = [locale for locale, _ in client_locales]
 
-        locale = negotiate_locale(
-            [str(locale) for locale in locales],
-            SUPPORTED_LOCALES,
-        )
+    print(locales)
+    locale = negotiate_locale(
+        [str(locale) for locale in locales],
+        SUPPORTED_LOCALES,
+    )
+    print(locale)
 
-        if locale is None:
-            locale = "en_US"
+    if locale is None:
+        locale = "en_US"
+        
+    print(locale)
 
-        return locale
+    return locale
     
 @router.get("/homepage")
 async def home(
@@ -65,8 +70,8 @@ async def get_currency(
         ],
 ):
     currencies = {
-        "en-US": "USD",
-        "fr-FR": "EUR", 
+        "en_US": "USD",
+        "fr_FR": "EUR", 
     }
 
     return currencies[language]
