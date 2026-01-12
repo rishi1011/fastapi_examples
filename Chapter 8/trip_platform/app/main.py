@@ -4,10 +4,12 @@ from typing import Annotated
 from app.dependencies import check_coupon_validity, select_category, time_range
 from app.middleware import ClientInfoMiddleware
 from app import internationalization
+from app.profiler import ProfileEndpointsMiddleware
 
 app = FastAPI()
 
 app.add_middleware(ClientInfoMiddleware)
+app.add_middleware(ProfileEndpointsMiddleware)
 app.include_router(internationalization.router)
 
 @app.get("/v1/trips")
