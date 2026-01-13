@@ -8,8 +8,10 @@ from httpx import AsyncClient
 
 from app.main import app
 from app.profiler import ProfileEndpointsMiddleware
+from app.internationalization import router
 
 def run_server():
+    # app.include_router(router=router)
     app.add_middleware(ProfileEndpointsMiddleware)
     uvicorn.run(app, port=8000)
 
@@ -27,11 +29,17 @@ async def make_requests(n: int):
     ) as client:
         tasks = (
             client.get(
-                "/sleeping_sync", timeout=float("inf")
+                "/homepage", timeout=float("inf"), headers={"Accept-Language": "fr_FR"}
             )
             for _ in range(n)
         )
-        await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks)
+
+        for i, response in enumerate(responses, start=1):
+            print(f"Response {i}:")
+            print("Status:", response.status_code)
+            print("Body:", response.json())
+
 
 async def main():
     with run_server_in_process():
