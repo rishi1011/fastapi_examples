@@ -1,16 +1,26 @@
 from fastapi import FastAPI, Depends
 from typing import Annotated
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.dependencies import check_coupon_validity, select_category, time_range
 from app.middleware import ClientInfoMiddleware
 from app import internationalization
 from app.profiler import ProfileEndpointsMiddleware
+from app.rate_limiter import limiter
 
 app = FastAPI()
 
 app.add_middleware(ClientInfoMiddleware)
 app.add_middleware(ProfileEndpointsMiddleware)
 app.include_router(internationalization.router)
+
+app.state.limiter = limiter
+app.add_exception_handler(
+    RateLimitExceeded, _rate_limit_exceeded_handler
+)
+app.add_middleware(SlowAPIMiddleware)
 
 @app.get("/v1/trips")
 def get_tours(

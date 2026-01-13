@@ -3,6 +3,8 @@ from babel import Locale, negotiate_locale
 from babel.numbers import get_currency_name
 from fastapi import Depends, Header, APIRouter, Request
 
+from app.rate_limiter import limiter
+
 SUPPORTED_LOCALES = [
     "en_US",
     "fr_FR",
@@ -52,6 +54,7 @@ def resolve_accept_language(
     return locale
     
 @router.get("/homepage")
+@limiter.limit("2/minute")
 async def home(
     request: Request,
     language: Annotated[
