@@ -42,3 +42,6 @@ production.db
 
 # MongoDB
 data/db/
+
+#profiling output
+profiler*.html
