@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Depends
+import logging
+
+from fastapi import FastAPI, Depends, BackgroundTasks
 from typing import Annotated
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -9,6 +11,9 @@ from app.middleware import ClientInfoMiddleware
 from app import internationalization
 from app.profiler import ProfileEndpointsMiddleware
 from app.rate_limiter import limiter
+from app.background_tasks import store_query_to_external_db
+
+logger = logging.getLogger("uvicorn")
 
 app = FastAPI()
 
@@ -34,6 +39,7 @@ def get_tours(
 
 @app.get("/v2/trips/{category}")
 def get_trips_by_category(
+    background_tasks: BackgroundTasks,
     category: Annotated[select_category, Depends()],
     discount_applicable: Annotated[
         bool, Depends(check_coupon_validity)
@@ -47,6 +53,16 @@ def get_trips_by_category(
             "\n. The coupon code is valid! "
             "You will get a discount!"
         )
+
+    background_tasks.add_task(
+        store_query_to_external_db, message
+    )
+
+    logger.info(
+        "Query sent to background task, "
+        "end of request."
+    )
+
     return message
 
 
