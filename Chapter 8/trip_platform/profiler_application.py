@@ -11,7 +11,6 @@ from app.profiler import ProfileEndpointsMiddleware
 from app.internationalization import router
 
 def run_server():
-    # app.include_router(router=router)
     app.add_middleware(ProfileEndpointsMiddleware)
     uvicorn.run(app, port=8000)
 
