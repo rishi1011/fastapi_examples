@@ -41,17 +41,13 @@ def resolve_accept_language(
 
     locales = [locale for locale, _ in client_locales]
 
-    print(locales)
     locale = negotiate_locale(
         [str(locale) for locale in locales],
         SUPPORTED_LOCALES,
     )
-    print(locale)
 
     if locale is None:
         locale = "en_US"
-        
-    print(locale)
 
     return locale
     
