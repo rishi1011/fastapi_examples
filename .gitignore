@@ -42,4 +42,5 @@ production.db
 
 # MongoDB
 data/db/
-profiler.html
+#profiling outut
+profiler*.html
