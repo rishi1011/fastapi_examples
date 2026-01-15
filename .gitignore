@@ -37,8 +37,6 @@ coverage.xml
 *.db
 *.db-wal
 *.db-shm
-production.db
-
 
 # MongoDB
 data/db/

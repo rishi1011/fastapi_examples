@@ -1,6 +1,0 @@
-time 2025-12-17 15: 21:15S, INFO : method: GET, call: /, ip: 127.0.0.1 
-time 2025-12-17 15: 21:15S, INFO : method: GET, call: /favicon.ico, ip: 127.0.0.1 
-time 2025-12-17 15: 21:15S, INFO : method: GET, call: /docs, ip: 127.0.0.1 
-time 2025-12-17 15: 21:15S, INFO : method: GET, call: /openapi.json, ip: 127.0.0.1 
-time 2025-12-17 15: 21:15S, INFO : method: GET, call: /docs, ip: 127.0.0.1 
-time 2025-12-17 15: 21:15S, INFO : method: GET, call: /openapi.json, ip: 127.0.0.1 
