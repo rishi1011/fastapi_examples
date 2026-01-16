@@ -2,7 +2,10 @@ import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, WebSocketException, status
 
+from app.chat import router as chat_router
+
 app = FastAPI()
+app.include_router(chat_router)
 
 logger = logging.getLogger("uvicorn")
 
