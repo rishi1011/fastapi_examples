@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, WebSocketException, status
 
 app = FastAPI()
 
@@ -18,9 +18,17 @@ async def ws_endpoint(websocket: WebSocket):
             logger.info(f"Message received: {data}")
             await websocket.send_text("Message received!")
             if data == "disconnect":
-                logger.warning("Disconneting...")
-                await websocket.close()
-                break
+                logger.warning("Disconnetinggg...")
+                return await websocket.close(
+                    code=status.WS_1000_NORMAL_CLOSURE,
+                    reason="Disconnecting..."
+                )
+            if "bad message" in data:
+                raise WebSocketException(
+                    code=status.WS_1008_POLICY_VIOLATION,
+                    reason="Inappropriate message"
+                )
+                
     except WebSocketDisconnect as e:
         logger.warning(
             f"Connection closed by the client (code={e.code})"
