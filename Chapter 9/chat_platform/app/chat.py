@@ -16,7 +16,11 @@ async def chatroom_endpoint(
 ):
     await conn_manager.connect(websocket)
     await conn_manager.broadcast(
+        {
+            "sender": "system",
+            "message": 
         f"{username} has joined the chat.",
+        },
         exclude=websocket,
     )
 
@@ -41,11 +45,12 @@ async def chatroom_endpoint(
         conn_manager.disconnect(websocket)
         await conn_manager.broadcast(
             {
-                "sender": ":system",
-                "message": "Client #{username}"
-                "left the chat",
+                "sender": "system",
+                "message": f"{username}"
+                " left the chat",
             },
         )
+        
 
 @router.get("/chatroom/{username}")
 async def chatroom_page_endpoint(

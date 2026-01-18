@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Websocket Chat</h1>
-    <h2>Your ID: <span id=""ws-id></span></h2>
+    <h2>Your ID: <span id="ws-id"></span></h2>
     <form action="" onsubmit="sendMessage(event)">
         <input type="text" id="messageText" autocomplete="off">
         <button>Send</button>
@@ -25,6 +25,7 @@
           document.getElementById("messages");
         var message = document.createElement("li");
         var data = JSON.parse(event.data);
+        console.log(data)
         if (data.sender == "You") {
           data_message =
             "You wrote: \n" + data.message;
