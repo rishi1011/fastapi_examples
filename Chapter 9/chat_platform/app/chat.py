@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -5,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from app.ws_manager import ConnectionManager
 
 conn_manager = ConnectionManager()
+logger = logging.getLogger('uvicorn')
 
 templates = Jinja2Templates(directory="templates")
 
@@ -23,6 +26,7 @@ async def chatroom_endpoint(
         },
         exclude=websocket,
     )
+    logger.info(f'{username} has joined the chat')
 
     try:
         while True:
@@ -41,6 +45,7 @@ async def chatroom_endpoint(
                 },
                 websocket
             )
+            logger.info(f'{username} says: {data}')
     except WebSocketDisconnect:
         conn_manager.disconnect(websocket)
         await conn_manager.broadcast(
@@ -50,7 +55,7 @@ async def chatroom_endpoint(
                 " left the chat",
             },
         )
-        
+        logger.info(f'{username} has left the chat.')
 
 @router.get("/chatroom/{username}")
 async def chatroom_page_endpoint(
