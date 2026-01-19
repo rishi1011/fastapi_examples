@@ -48,13 +48,16 @@ async def chatroom_endpoint(
             logger.info(f'{username} says: {data}')
     except WebSocketDisconnect:
         conn_manager.disconnect(websocket)
-        await conn_manager.broadcast(
-            {
-                "sender": "system",
-                "message": f"{username}"
-                " left the chat",
-            },
-        )
+        try:
+            await conn_manager.broadcast(
+                {
+                    "sender": "system",
+                    "message": f"{username}"
+                    " left the chat",
+                },
+            )
+        except WebSocketDisconnect:
+            pass
         logger.info(f'{username} has left the chat.')
 
 @router.get("/chatroom/{username}")

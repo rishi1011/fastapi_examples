@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
 
 class ConnectionManager:
     def __init__(self):
@@ -12,13 +12,14 @@ class ConnectionManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
 
     async def send_personal_message(
             self, message:dict, websocket: WebSocket
     ):
         await websocket.send_json(message)
-    
+
     async def broadcast(
             self, message: json, exclude: WebSocket = None
     ):
