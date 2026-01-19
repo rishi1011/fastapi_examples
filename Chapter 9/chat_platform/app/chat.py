@@ -4,12 +4,12 @@ from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from app.templating import templates
 from app.ws_manager import ConnectionManager
 
 conn_manager = ConnectionManager()
 logger = logging.getLogger('uvicorn')
 
-templates = Jinja2Templates(directory="templates")
 
 router = APIRouter()
 
