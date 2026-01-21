@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, WebSocketException, status
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocketException, status
+from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from app.ws_password_bearer import (
     OAuth2WebSocketPasswordBearer,
@@ -12,11 +15,11 @@ oauth2_scheme_for_ws = OAuth2WebSocketPasswordBearer(
 fake_users_db = {
     "johndoe": {
         "username": "johndoe",
-        "hashedpassword": "hashedsecret",
+        "hashed_password": "hashedsecret",
     },
     "janedoe": {
         "username": "janedoe",
-        "hashedpassword": "hashedsecret2",
+        "hashed_password": "hashedsecret2",
     }
 }
 
@@ -64,12 +67,42 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ):
     user_dict = fake_users_db.get(form_data.username)
+    print(user_dict)
+    print(form_data.username, form_data.password)
     if not user_dict:
         raise HTTPException(
-            status_code=404,
-            detail="Incorrect username and password",
+            status_code=400,
+            detail="Incorrect username or password",
         )
     hashed_password = fakely_hashed_password(
         form_data.password
     )
+    print(hashed_password)
+    if not hashed_password == user_dict.get('hashed_password'):
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect username or password",
+        )
     
+    token = fake_token_generator(form_data.username)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+    }
+
+@router.get('/login')
+async def login_form(
+    request: Request,
+    redirecturl: Optional[str] = None,
+) -> HTMLResponse:
+    templates = Jinja2Templates(directory="templates")
+    if redirecturl:
+        context = {"redirection_url": redirecturl}
+    else:
+        context = {}
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context=context,
+    )
