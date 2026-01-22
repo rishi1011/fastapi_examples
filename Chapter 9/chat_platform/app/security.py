@@ -67,8 +67,6 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ):
     user_dict = fake_users_db.get(form_data.username)
-    print(user_dict)
-    print(form_data.username, form_data.password)
     if not user_dict:
         raise HTTPException(
             status_code=400,
@@ -77,7 +75,6 @@ async def login(
     hashed_password = fakely_hashed_password(
         form_data.password
     )
-    print(hashed_password)
     if not hashed_password == user_dict.get('hashed_password'):
         raise HTTPException(
             status_code=400,
