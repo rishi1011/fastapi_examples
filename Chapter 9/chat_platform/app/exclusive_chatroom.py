@@ -27,7 +27,7 @@ async def exclusive_chatroom(
     user = fake_token_resolver(token)
     if not user:
         return RedirectResponse(
-            url="/login?redirecturl=http://localhost:8000/exclusive-chatroom",
+            url="/login?redirecturl=http://127.0.0.1:8000/exclusive-chatroom",
         )
     return templates.TemplateResponse(
         request=request,

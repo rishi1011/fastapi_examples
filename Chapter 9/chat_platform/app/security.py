@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, WebSocketException, status
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -83,10 +83,21 @@ async def login(
     
     token = fake_token_generator(form_data.username)
 
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-    }
+    response = JSONResponse(
+        {
+            "access_token": token,
+            "token_type": "bearer",
+        }
+    )
+
+    response.set_cookie(
+        key="chatroomtoken",
+        value=token,
+        httponly=True,
+        samesite="lax",
+    )
+
+    return response
 
 @router.get('/login')
 async def login_form(
