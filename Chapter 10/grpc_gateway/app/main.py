@@ -11,4 +11,4 @@ grpc_channel = grpc.aio.insecure_channel(
     "localhost:50051"
 )
 
-@app.get()
+# @app.get()
