@@ -12,13 +12,9 @@ class GRPCResponse(BaseModel):
     message: str
     received: bool
 
-grpc_channel = grpc.aio.insecure_channel(
-    "localhost:50051"
-)
-
 @app.get("/grpc")
 async def call_grpc(message: str) -> GRPCResponse:
-    async with grpc_channel as channel:
+    async with grpc.aio.insecure_channel("localhost:50051") as channel:
         grpc_stub = GrpcServerStub(channel)
         response = await grpc_stub.GetServerResponse(
             Message(message = message)
