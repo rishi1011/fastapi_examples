@@ -19,7 +19,7 @@ async def generate_chat_completion(user_query=" ", messages=[]) -> str:
     try:
         response = await client.chat(
             message=user_query,
-            model="command-r-plus",
+            model="command-r-plus-08-2024",
             preamble=SYSTEM_MESSAGE,
             chat_history=messages,
         )
