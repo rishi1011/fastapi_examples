@@ -1,6 +1,7 @@
+from typing import Annotated
 import joblib
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from contextlib import asynccontextmanager
 from huggingface_hub import hf_hub_download
 from pydantic import create_model
@@ -34,3 +35,20 @@ Symptoms = create_model(
     "Symptoms", **query_parameters
 )
 
+@app.get("/diagnosis")
+async def get_diagnosis(
+    symptoms: Annotated[Symptoms, Depends()],
+):
+    array = [
+        int(value)
+        for _, value in symptoms.model_dump().items()
+    ]
+    array.extend(
+        [0] * (len(symptoms_list) - len(array))
+    )
+    len(symptoms_list)
+
+    diseases = ml_model["doctor"].predict([array])
+    return {
+        "diseases": [disease for disease in diseases]
+    }
