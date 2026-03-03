@@ -29,7 +29,6 @@ async def query_assistant(
     question: Annotated[str, Body()],
 ) -> str:
     context = get_context(question, request.state.db)
-    print(request.state.db)
     response = await chain.ainvoke(
         {
             "question": question,
