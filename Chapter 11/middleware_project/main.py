@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import Body, FastAPI
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from middleware.asgi_middleware import ASGIMiddleware
@@ -41,6 +42,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost"])
 
 @app.get("/")
 async def read_root():
