@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import Body, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from middleware.asgi_middleware import ASGIMiddleware
 from middleware.request_middleware import HashBodyContentMiddleWare
@@ -34,6 +35,12 @@ app.add_middleware(
     ),
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def read_root():
