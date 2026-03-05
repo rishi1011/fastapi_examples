@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from middleware.asgi_middleware import ASGIMiddleware
 from middleware.request_middleware import HashBodyContentMiddleWare
 from middleware.response_middleware import ExtraHeadersResponseMiddleware
-from middleware.webhook import WebhookSenderMiddleware
+from middleware.webhook import WebhookSenderMiddleware, Event
 
 logger = logging.getLogger("uvicorn")
 
@@ -51,7 +51,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost"])
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1"])
 
 app.add_middleware(WebhookSenderMiddleware)
 
