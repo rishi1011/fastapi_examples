@@ -66,7 +66,7 @@ class WebhookSenderMiddleware:
 
             urls = request.state.webhook_urls
             for url in urls:
-                await create_task(
+                create_task(
                     send_event_to_url(url, event)
                 )
             
