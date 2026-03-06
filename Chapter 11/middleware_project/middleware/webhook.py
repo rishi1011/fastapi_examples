@@ -69,7 +69,7 @@ class WebhookSenderMiddleware:
                 create_task(
                     send_event_to_url(url, event)
                 )
-            
+                
             async def continue_receive():
                 return message
             
