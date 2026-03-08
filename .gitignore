@@ -40,5 +40,9 @@ coverage.xml
 
 # MongoDB
 data/db/
+
 #profiling outut
 profiler*.html
+
+#https cert
+*.pem
