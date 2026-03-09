@@ -46,3 +46,6 @@ profiler*.html
 
 #https cert
 *.pem
+
+#source distribution file
+Chapter 12/dist/
